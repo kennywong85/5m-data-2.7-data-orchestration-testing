@@ -17,3 +17,15 @@ models:
         tests:
           - unique
           - not_null
+      - name: pack
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 160
+      - name: bottle_volume_ml
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 378000

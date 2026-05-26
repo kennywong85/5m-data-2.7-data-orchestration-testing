@@ -1,20 +1,25 @@
 version: 2
 
-# The following schema works with dbt-core > 1.10 and above
-# Comment the line 'arguments:' to work on older versions of dbt (dbt-core < 1.10 and below)
-
 models:
   - name: fact_sales
     description: "Fact table for item."
+
+    tests:
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "ROUND(sale_dollars, 1) = ROUND(bottles_sold * state_bottle_retail, 1)"
+          severity: error
+
     columns:
       - name: invoice_and_item_number
         description: "The primary key for this table"
         tests:
           - unique
           - not_null
-          # - dbt_expectations.expect_column_values_to_be_of_type:
-          #     arguments:
-          #       column_type: string
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              arguments:
+                column_type: string
+
       - name: store_number
         description: "The foreign key to the store dimension table"
         tests:
@@ -22,19 +27,13 @@ models:
               arguments:
                 to: ref('dim_store')
                 field: store_number
-      # - name: date
-      #   tests:
-      #     - dbt_utils.accepted_range:
-      #         arguments:
-      #           min_value: "PARSE_DATE('%F', '2012-01-01')"
-      #           max_value: "CURRENT_DATE()"
-          # - dbt_expectations.expect_column_values_to_be_of_type:
-          #     arguments:
-          #       column_type: date
-    # tests:
-    #   - dbt_utils.expression_is_true:
-    #       arguments:
-    #         expression: "ROUND(sale_dollars, 1) = TRUNC(bottles_sold * state_bottle_retail, 1)"
-    #         severity: error # accepts only `error` and `warn` default is error
 
-
+      - name: date
+        tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: "PARSE_DATE('%F', '2012-01-01')"
+                max_value: "CURRENT_DATE()"
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              arguments:
+                column_type: date
